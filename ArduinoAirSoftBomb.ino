@@ -2,21 +2,17 @@
 #include <Keypad.h>
 #include <Wire.h> 
 #include <string.h> 
-
 // 22, 24, 26, 42 diodes PINs
-
-char keypressed;
-
 int greenDiode = 22;
 int redDiode = 24;
 int yellowDiode = 26;
 int redDiode2 = 42;
 int buzzer = 44;
 
+char keypressed;
 int bombStatus = 0;
-
 int timeCursor = 0;
-char time [8]= {'0', '0', ':', '0', '0', ':', '0', '0'};
+char time [8]= {'h', 'h', ':', 'm', 'm', ':', 's', 's'};
 int hours = 0;
 int minutes = 0;
 int seconds = 0;
@@ -24,8 +20,6 @@ long secMillis = 0;
 long interval = 1000;
 char password[4];
 char entered[4];
-
-
 char line1 [16];
 char line2 [16];
 char line3 [16];
@@ -88,6 +82,11 @@ void loop(void)
   // Get variables from keypad and set buzzer
   getKey();
 
+  // bombStatus - 0 - disarmed - before set a time
+  // bombStatus - 1 - disarmed - after set a time, before a set pin    
+  // bombStatus - 2 - disarmed - after set a pin, before arm  
+  // bombStatus - 3 - armed !! 
+
   // Set time function - bombStatus = 0;
   if (bombStatus == 0)
     {
@@ -95,7 +94,7 @@ void loop(void)
       putStringToArray("Ustaw czas:", line2);
         if (timeCursor == 0)
           {
-            putStringToArray("00:00:00", line3);
+            putStringToArray("hh:mm:ss", line3);
           }
       setTime(keypressed, line3);
 
@@ -112,14 +111,16 @@ void loop(void)
         if (timeCursor == 9)
         {
         putStringToArray("Czas ustawiony!", line2);
+        lcdPrint();
         bombStatus++;
         }
     }
 
-  // Set time function - bombStatus = 0;
+  // Set pin function - bombStatus = 0;
   if (bombStatus == 1)
   {
       putStringToArray("Ustaw pin:", line2);
+      putStringToArray("", line3);
   }
   
 }
@@ -151,14 +152,8 @@ void loop(void)
   }
 
 int setTime(char key, char line[]){
-    // time[timeCursor] = {key};
-    // Serial.println("setTime values: ");
-    // Serial.print(time[timeCursor]);
-    // timeCursor ++;
-    // // putStringToArray(time, line3);
-    // return line3;
     if (keypressed == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
-        || keypressed == '6' || keypressed == '7' || keypressed == '8'|| keypressed == '9')
+        || keypressed == '6' || keypressed == '7' || keypressed == '8'|| keypressed == '9' || keypressed == '0')
       {
           if (timeCursor < 8)
             {
@@ -175,20 +170,38 @@ int setTime(char key, char line[]){
     if (keypressed == '*')
     {
       timeCursor--;
+        if (timeCursor == 7 || timeCursor == 6)
+          {
+            line3[timeCursor] = {'s'};
+          }
+
         if (timeCursor == 2 || timeCursor == 5)
           {
             timeCursor--;
           }
-      line3[timeCursor] = {'0'};
+
+        if (timeCursor == 4 || timeCursor == 3)
+          {
+            line3[timeCursor] = {'m'};
+          }
+
+        if (timeCursor == 1 || timeCursor == 0)
+          {
+            line3[timeCursor] = {'h'};
+          }
+      // line3[timeCursor] = {'0'};
     }
 
     if (keypressed == '#' && timeCursor == 8)
     {
-      putStringToArray("Czas ustawiony!", line2);
+      // Put chars fron lcd to variables
+      hours = ( 10 * (line[0] - '0' ) ) + line[1] - '0';
+      minutes = ( 10 * (line[3] - '0' ) ) + line[4] - '0';
+      seconds = ( 10 * (line[6] - '0' ) ) + line[7] - '0';
       timeCursor++;
     }
-    Serial.print("timeCursor: "); 
-    Serial.println(timeCursor);
+    // Serial.print("timeCursor: "); 
+    // Serial.println(timeCursor);
     return timeCursor;
 }
 
