@@ -5,24 +5,26 @@
 
 // 22, 24, 26, 42 diodes PINs
 
+char keypressed;
+
 int greenDiode = 22;
 int redDiode = 24;
 int yellowDiode = 26;
 int redDiode2 = 42;
 int buzzer = 44;
 
-int status = 0;
-int timeCursor = 0;
+int bombStatus = 0;
 
+int timeCursor = 0;
+char time [8]= {'0', '0', ':', '0', '0', ':', '0', '0'};
 int hours = 0;
 int minutes = 0;
 int seconds = 0;
-
 long secMillis = 0;
 long interval = 1000;
 char password[4];
 char entered[4];
-char time [16] = {'0', '0', ':', '0', '0', ':', '0' ,'0'};
+
 
 char line1 [16];
 char line2 [16];
@@ -73,20 +75,53 @@ void setup(void) {
 
 void loop(void)
 {
-  
+  // putStringToArray(time, line4);
   // lcdPrint
   u8g.firstPage();  
   do {
     lcdPrint();
   } while( u8g.nextPage() );
 
-  // if bomb is disarmed
-  if (status == 0)
+  // Get variables from keypad and set buzzer
+  getKey();
+
+  // char keypressed = keypad.getKey();
+  //   if (keypressed != NO_KEY)
+  //     {
+  //       digitalWrite (buzzer, HIGH);
+  //       delay (300);
+  //       digitalWrite (buzzer, LOW);
+  //       // Serial.println(keypressed);
+  //     }
+
+  Serial.println(keypressed);
+
+  // Set time function - if bomb is disarmed
+  if (bombStatus == 0)
   {
-    setTime();
+    putStringToArray("Bomba rozbrojona", line1);
+    putStringToArray("Ustaw czas:", line2);
+      if (timeCursor == 0)
+      {
+        putStringToArray("00:00:00", line3);
+      }
+
+      // setTime(keypressed, line3);
+
+      // if (keypressed == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
+      // || keypressed == '6' || keypressed == '7' || keypressed == '8'|| keypressed == '9')
+      // {
+      //   setTime(keypressed, line3);
+      // }
+      if (keypressed != NO_KEY)
+      {
+        setTime(keypressed, line3);
+      }
+      
+      
   }
-    
   
+    
 
     // lcdPrintString(0, 15, "line 1");
     // lcdPrintString(0, 30, "line 2");
@@ -109,16 +144,26 @@ void loop(void)
 
     // lcdPrintString(0, 30, "line 2");
     
-    char keypressed = keypad.getKey();
-    
-
-
 
 }
 
 //////////////////////////////////////////////////////////
 //  END LOOP
 //////////////////////////////////////////////////////////
+
+// Get variable from keypad and set buzzer
+char getKey(){
+    keypressed = keypad.getKey();
+    if (keypressed != NO_KEY)
+      {
+        digitalWrite (buzzer, HIGH);
+        delay (300);
+        digitalWrite (buzzer, LOW);
+        // Serial.println(keypressed);
+      }
+      return keypressed;
+}
+
 
   // lcdPrint
   void lcdPrint(void) {
@@ -138,15 +183,41 @@ void loop(void)
       for (int i = 0; i < 16; i++)
         {
           arr[i] = val[i];
-          Serial.println(arr[i]);
+          // Serial.println(arr[i]);
         }
   }
 
-void setTime(){
-    putStringToArray("Bomba rozbrojona", line1);
-    putStringToArray("Ustaw czas:", line2);
-    putStringToArray("00:00:00", line3);
+int setTime(char key, char line[]){
+    // time[timeCursor] = {key};
+    // Serial.println("setTime values: ");
+    // Serial.print(time[timeCursor]);
+    // timeCursor ++;
+    // // putStringToArray(time, line3);
+    // return line3;
+    if (keypressed == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
+        || keypressed == '6' || keypressed == '7' || keypressed == '8'|| keypressed == '9')
+    {
+      if (timeCursor < 8)
+        {
+          line3[timeCursor] = {key};
+          timeCursor ++;
+          if (timeCursor == 2 || timeCursor == 5)
+            {
+              line3[timeCursor] = {':'};
+              timeCursor ++;
+            }
+        Serial.print("timeCursor: "); 
+        Serial.println(timeCursor);
+        }
+    }
+    
+
+    return timeCursor;
 }
+
+
+
+
 
 
 // LCD print 
