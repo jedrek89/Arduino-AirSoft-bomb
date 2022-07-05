@@ -96,30 +96,46 @@ void loop(void)
 
   Serial.println(keypressed);
 
+  // bombStatus == 0 - disarmed
+  // bombStatus == 1 - time set
+  // bombStatus == 2 - pin set
+  // bombStatus == 4 - armed
+
   // Set time function - if bomb is disarmed
   if (bombStatus == 0)
-  {
-    putStringToArray("Bomba rozbrojona", line1);
-    putStringToArray("Ustaw czas:", line2);
-      if (timeCursor == 0)
-      {
-        putStringToArray("00:00:00", line3);
-      }
+    {
+      putStringToArray("Bomba rozbrojona", line1);
+      putStringToArray("Ustaw czas:", line2);
+        if (timeCursor == 0)
+          {
+            putStringToArray("00:00:00", line3);
+          }
 
-      // setTime(keypressed, line3);
+        if (keypressed != NO_KEY)
+          {
+            setTime(keypressed, line3);
+          }
 
-      // if (keypressed == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
-      // || keypressed == '6' || keypressed == '7' || keypressed == '8'|| keypressed == '9')
-      // {
-      //   setTime(keypressed, line3);
-      // }
-      if (keypressed != NO_KEY)
-      {
-        setTime(keypressed, line3);
-      }
-      
-      
-  }
+        if (timeCursor > 0 && timeCursor < 8)
+          {
+            putStringToArray("*-usun element", line2);
+          }
+
+        if (timeCursor == 8)
+          {
+            putStringToArray("Czas ustawiony!", line2);
+            bombStatus = 1;
+          }
+    }
+
+      // Set pin function - if bomb is disarmed
+  if (bombStatus == 1)
+    {
+      putStringToArray("Czas ustawiony!", line2);
+      delay(1000);
+      putStringToArray("# - zatwierdz", line2);
+      delay(1000);
+    }
   
     
 
@@ -159,13 +175,12 @@ char getKey(){
         digitalWrite (buzzer, HIGH);
         delay (300);
         digitalWrite (buzzer, LOW);
-        // Serial.println(keypressed);
       }
       return keypressed;
 }
 
 
-  // lcdPrint
+  // lcdPrint function
   void lcdPrint(void) {
   // graphic commands to redraw the complete screen should be placed here  
   u8g.setFont(u8g_font_unifont);
