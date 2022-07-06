@@ -149,7 +149,7 @@ void loop(void)
 // Set pin function
 int setPin(char key){
 
-  if (keypressed == '*' && pinCursor >= 1){
+  if (keypressed == '*' && pinCursor >= 0){
     pinCursor --;
   }
 
@@ -165,35 +165,43 @@ int setPin(char key){
   if (keypressed == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
   || keypressed == '6' || keypressed == '7' || keypressed == '8'|| keypressed == '9' || keypressed == '0')
   {
+    pinCursor++;
+
     if (pinCursor == 0)
+      {
+        putStringToArray("Ustaw pin:", line2);
+        putStringToArray("", line3);
+      }
+
+    if (pinCursor == 1)
       {
         putStringToArray("*-usun", line2);
         putStringToArray("*", line3);
         pin[0] = {key};
       }
 
-    if (pinCursor == 1)
+    if (pinCursor == 2)
       { 
         putStringToArray("*-usun", line2);
         putStringToArray("**", line3);
         pin[1] = {key};
       }
 
-    if (pinCursor == 2)
+    if (pinCursor == 3)
       {
         putStringToArray("*-usun", line2);
         putStringToArray("***", line3);
         pin[2] = {key};
       }
 
-    if (pinCursor == 3)
+    if (pinCursor == 4)
       {
         putStringToArray("*-usun #-potw", line2);
         putStringToArray("****", line3);
         pin[3] = {key};
       }
 
-      pinCursor++;
+
       // short int arrIndex = pinCursor - 1;
       // pin[arrIndex] = {keypressed};
       // Serial.println("pin: ");
