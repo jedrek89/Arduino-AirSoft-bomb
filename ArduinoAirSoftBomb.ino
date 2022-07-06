@@ -85,8 +85,7 @@ void loop(void)
 
   // bombStatus - 0 - disarmed - before set a time
   // bombStatus - 1 - disarmed - after set a time, before a set pin    
-  // bombStatus - 2 - disarmed - after set a pin, before arm  
-  // bombStatus - 3 - armed !! 
+  // bombStatus - 2 - armed !!
 
   // Set time function - bombStatus = 0;
   if (bombStatus == 0)
@@ -130,16 +129,24 @@ void loop(void)
 
     if (pinCursor == 5)
     {
+
       putStringToArray("Pin ustawiony!", line2);
       putStringToArray("", line3);
-      // Serial.println(pin[0]);
-      // Serial.println(pin[1]);
-      // Serial.println(pin[2]);
-      // Serial.println(pin[3]);
+
       bombStatus ++;
     }
 
   }
+
+
+  // Bomb armed - bombStatus = 2;
+  if (bombStatus == 2)
+  { 
+    putStringToArray("Bomba uzbrojona", line1);
+
+  }
+
+
 }
 
 //////////////////////////////////////////////////////////
@@ -149,64 +156,51 @@ void loop(void)
 // Set pin function
 int setPin(char key){
 
-  if (keypressed == '*' && pinCursor >= 0){
+  if (keypressed == '*' && pinCursor > 0){
     pinCursor --;
   }
 
   // pin - set confirm
   if (keypressed == '#' && pinCursor == 4){
-      Serial.println(pin[0]);
-      Serial.println(pin[1]);
-      Serial.println(pin[2]);
-      Serial.println(pin[3]);
     pinCursor = 5;
   }
 
-  if (keypressed == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
-  || keypressed == '6' || keypressed == '7' || keypressed == '8'|| keypressed == '9' || keypressed == '0')
-  {
-    pinCursor++;
-
-    if (pinCursor == 0)
+  if (key == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
+    || keypressed == '6' || keypressed == '7' || keypressed == '8'|| keypressed == '9' || keypressed == '0')
+    {
+      if (pinCursor <= 3)
       {
-        putStringToArray("Ustaw pin:", line2);
-        putStringToArray("", line3);
+        pinCursor++;
       }
+    }
 
     if (pinCursor == 1)
       {
         putStringToArray("*-usun", line2);
         putStringToArray("*", line3);
-        pin[0] = {key};
       }
 
     if (pinCursor == 2)
       { 
         putStringToArray("*-usun", line2);
         putStringToArray("**", line3);
-        pin[1] = {key};
       }
 
     if (pinCursor == 3)
       {
         putStringToArray("*-usun", line2);
         putStringToArray("***", line3);
-        pin[2] = {key};
       }
 
     if (pinCursor == 4)
       {
         putStringToArray("*-usun #-potw", line2);
         putStringToArray("****", line3);
-        pin[3] = {key};
       }
 
-
-      // short int arrIndex = pinCursor - 1;
-      // pin[arrIndex] = {keypressed};
-      // Serial.println("pin: ");
-      // Serial.println(pin[arrIndex]);
-  }
+      char tempVal = pinCursor;
+      pin[tempVal - 1] = {key};
+      Serial.println(pin[tempVal - 1]);
 
     return pinCursor;
 }
@@ -238,16 +232,16 @@ int setTime(char key, char line[]){
     if (keypressed == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
         || keypressed == '6' || keypressed == '7' || keypressed == '8'|| keypressed == '9' || keypressed == '0')
       {
-          if (timeCursor < 8)
-            {
-              line3[timeCursor] = {key};
-              timeCursor ++;
-                if (timeCursor == 2 || timeCursor == 5)
-                  {
-                    line3[timeCursor] = {':'};
-                    timeCursor ++;
-                  }
-            }
+        if (timeCursor < 8)
+          {
+            line3[timeCursor] = {key};
+            timeCursor ++;
+            if (timeCursor == 2 || timeCursor == 5)
+              {
+                line3[timeCursor] = {':'};
+                timeCursor ++;
+              }
+          }
     }
 
     if (keypressed == '*' && timeCursor >= 1)
