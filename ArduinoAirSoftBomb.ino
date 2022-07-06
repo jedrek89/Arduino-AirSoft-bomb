@@ -229,19 +229,29 @@ int setPin(char key){
 
 // Set time function
 int setTime(char key, char line[]){
-    if (keypressed == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
-        || keypressed == '6' || keypressed == '7' || keypressed == '8'|| keypressed == '9' || keypressed == '0')
+    if (timeCursor == 2 || timeCursor == 5)
       {
-        if (timeCursor < 8)
+        line3[timeCursor] = {':'};
+        timeCursor ++;
+      }
+
+    if (key == '1' || key == '2' || key == '3' || key == '4' || key == '5' 
+        || key == '6' || key == '7' || key == '8'|| key == '9' || key == '0')
+    {
+        if (timeCursor == 0 || timeCursor == 1 || timeCursor == 4 || timeCursor == 7)
           {
             line3[timeCursor] = {key};
             timeCursor ++;
-            if (timeCursor == 2 || timeCursor == 5)
-              {
-                line3[timeCursor] = {':'};
-                timeCursor ++;
-              }
           }
+
+    else if (timeCursor == 3 || timeCursor == 6)
+      {
+        if (key == '1' || key == '2' || key == '3' || key == '4' || key == '5')
+          {
+            line3[timeCursor] = {key};
+            timeCursor ++;
+          }
+      }
     }
 
     if (keypressed == '*' && timeCursor >= 1)
