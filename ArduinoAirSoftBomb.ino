@@ -18,8 +18,9 @@ int minutes = 0;
 int seconds = 0;
 long secMillis = 0;
 long interval = 1000;
-char password[4];
-char entered[4];
+short int pinCursor = 0;
+char pin[4] = {'0', '0', '0', '0'};
+char pinEntered[4];
 char line1 [16];
 char line2 [16];
 char line3 [16];
@@ -118,16 +119,89 @@ void loop(void)
 
   // Set pin function - bombStatus = 0;
   if (bombStatus == 1)
-  {
-      putStringToArray("Ustaw pin:", line2);
+  { 
+    if (pinCursor == 0)
+    {
       putStringToArray("", line3);
+      putStringToArray("Ustaw pin:", line2);
+    }
+    setPin(keypressed);
+    // Serial.println("pinCursor: "); Serial.print(pinCursor);
+
+    if (pinCursor == 5)
+    {
+      putStringToArray("Pin ustawiony!", line2);
+      putStringToArray("", line3);
+      // Serial.println(pin[0]);
+      // Serial.println(pin[1]);
+      // Serial.println(pin[2]);
+      // Serial.println(pin[3]);
+      bombStatus ++;
+    }
+
   }
-  
 }
 
 //////////////////////////////////////////////////////////
 //  END LOOP
 //////////////////////////////////////////////////////////
+
+// Set pin function
+int setPin(char key){
+
+  if (keypressed == '*' && pinCursor >= 1){
+    pinCursor --;
+  }
+
+  // pin - set confirm
+  if (keypressed == '#' && pinCursor == 4){
+      Serial.println(pin[0]);
+      Serial.println(pin[1]);
+      Serial.println(pin[2]);
+      Serial.println(pin[3]);
+    pinCursor = 5;
+  }
+
+  if (keypressed == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
+  || keypressed == '6' || keypressed == '7' || keypressed == '8'|| keypressed == '9' || keypressed == '0')
+  {
+    if (pinCursor == 0)
+      {
+        putStringToArray("*-usun", line2);
+        putStringToArray("*", line3);
+        pin[0] = {key};
+      }
+
+    if (pinCursor == 1)
+      { 
+        putStringToArray("*-usun", line2);
+        putStringToArray("**", line3);
+        pin[1] = {key};
+      }
+
+    if (pinCursor == 2)
+      {
+        putStringToArray("*-usun", line2);
+        putStringToArray("***", line3);
+        pin[2] = {key};
+      }
+
+    if (pinCursor == 3)
+      {
+        putStringToArray("*-usun #-potw", line2);
+        putStringToArray("****", line3);
+        pin[3] = {key};
+      }
+
+      pinCursor++;
+      // short int arrIndex = pinCursor - 1;
+      // pin[arrIndex] = {keypressed};
+      // Serial.println("pin: ");
+      // Serial.println(pin[arrIndex]);
+  }
+
+    return pinCursor;
+}
 
   // lcdPrint function
   void lcdPrint(void) {
@@ -151,6 +225,7 @@ void loop(void)
         }
   }
 
+// Set time function
 int setTime(char key, char line[]){
     if (keypressed == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
         || keypressed == '6' || keypressed == '7' || keypressed == '8'|| keypressed == '9' || keypressed == '0')
@@ -167,7 +242,7 @@ int setTime(char key, char line[]){
             }
     }
 
-    if (keypressed == '*')
+    if (keypressed == '*' && timeCursor >= 1)
     {
       timeCursor--;
         if (timeCursor == 7 || timeCursor == 6)
@@ -194,10 +269,16 @@ int setTime(char key, char line[]){
 
     if (keypressed == '#' && timeCursor == 8)
     {
-      // Put chars fron lcd to variables
+      // Put chars from lcd to variables
       hours = ( 10 * (line[0] - '0' ) ) + line[1] - '0';
       minutes = ( 10 * (line[3] - '0' ) ) + line[4] - '0';
       seconds = ( 10 * (line[6] - '0' ) ) + line[7] - '0';
+      Serial.print("hours: "); 
+      Serial.println(hours);
+      Serial.print("minutes: "); 
+      Serial.println(minutes);
+      Serial.print("seconds: "); 
+      Serial.println(seconds);
       timeCursor++;
     }
     // Serial.print("timeCursor: "); 
