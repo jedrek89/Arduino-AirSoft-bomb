@@ -7,8 +7,6 @@ int greenDiode = 22;
 int redDiode = 24;
 int yellowDiode = 26;
 int redDiode2 = 42;
-int buzzer = 44;
-
 char keypressed;
 int bombStatus = 0;
 int timeCursor = 0;
@@ -42,12 +40,12 @@ byte colPins[COLS] = {36, 38, 40};     //6,8,4 for Black 4x3 Keypad
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
 void setup(void) {
-  digitalWrite (buzzer, LOW);
+  digitalWrite (A8, LOW);
   Serial.begin(9600);
   pinMode(redDiode, OUTPUT); 
   pinMode(yellowDiode, OUTPUT);
   pinMode(greenDiode, OUTPUT);
-  pinMode(buzzer, OUTPUT);
+  pinMode(A8, OUTPUT); // Buzzer
 
   u8g.setFont(u8g_font_unifont);  //Set font.
   if ( u8g.getMode() == U8G_MODE_R3G3B2 ) 
@@ -116,7 +114,7 @@ void loop(void)
         }
     }
 
-  // Set pin function - bombStatus = 0;
+  // Set pin function - bombStatus = 1;
   if (bombStatus == 1)
   { 
     if (pinCursor == 0)
@@ -129,13 +127,10 @@ void loop(void)
 
     if (pinCursor == 5)
     {
-
       putStringToArray("Pin ustawiony!", line2);
       putStringToArray("", line3);
-
       bombStatus ++;
     }
-
   }
 
 
@@ -143,7 +138,6 @@ void loop(void)
   if (bombStatus == 2)
   { 
     putStringToArray("Bomba uzbrojona", line1);
-
   }
 
 
@@ -388,9 +382,10 @@ char getKey(){
     keypressed = keypad.getKey();
     if (keypressed != NO_KEY)
       {
-        digitalWrite (buzzer, HIGH);
-        delay (300);
-        digitalWrite (buzzer, LOW);
+        tone(A8, 4000, 300); // Buzzer with tone
+        digitalWrite (redDiode2, HIGH);
+        delay (200);
+        digitalWrite (redDiode2, LOW);
       }
       return keypressed;
 }
