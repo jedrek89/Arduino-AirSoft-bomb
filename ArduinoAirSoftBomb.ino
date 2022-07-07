@@ -7,6 +7,9 @@ int greenDiode = 22;
 int redDiode = 24;
 int yellowDiode = 26;
 int redDiode2 = 42;
+unsigned long startMillis;
+unsigned long currentMillis;
+const unsigned long period = 1000;
 char keypressed;
 int bombStatus = 0;
 int timeCursor = 0;
@@ -14,6 +17,9 @@ char time [8]= {'h', 'h', ':', 'm', 'm', ':', 's', 's'};
 int hours = 0;
 int minutes = 0;
 int seconds = 0;
+int hoursMillis = -1;
+int minutesMillis;
+short int secondsMillis;
 long secMillis = 0;
 long interval = 1000;
 short int pinCursor = 0;
@@ -54,21 +60,16 @@ void setup(void) {
     u8g.setColorIndex(3);         // max intensity
   else if ( u8g.getMode() == U8G_MODE_BW )
     u8g.setColorIndex(1);         // pixel on
-
-    //  print arr to serial works !!
-    // unsigned int arrSize = sizeof(time);
-    // lcdPrintArray(time, arrSize);
-
+  startMillis = millis();
 }
 
 //////////////////////////////////////////////////////////
 // LOOP
 //////////////////////////////////////////////////////////
 
-
 void loop(void)
-{
-
+{ 
+    currentMillis = millis(); 
     // Serial.println("bomb status: ");
     // Serial.println(bombStatus);
 
@@ -138,6 +139,16 @@ void loop(void)
   if (bombStatus == 2)
   { 
     putStringToArray("Bomba uzbrojona", line1);
+    putStringToArray("Wybuchnie za:", line2);
+    counting();
+    // Serial.println(seconds);
+      // Serial.print("hours: "); 
+      // Serial.println(hours);
+      // Serial.print("minutes: "); 
+      // Serial.println(minutes);
+      // Serial.print("seconds: "); 
+      // Serial.println(seconds);
+    
   }
 
 
@@ -146,6 +157,48 @@ void loop(void)
 //////////////////////////////////////////////////////////
 //  END LOOP
 //////////////////////////////////////////////////////////
+
+// Counting function
+int counting(){
+    int countStatus;
+    if (currentMillis - startMillis >= period)  
+    {
+      startMillis = currentMillis;
+      // secondsMillis = ((startMillis/1000)%60);
+      // Serial.print("secondsMillis: "), Serial.println(secondsMillis);
+      seconds--;
+      if (seconds == -1)
+      {
+        minutes --;
+        seconds = 59;
+      }
+      Serial.print("seconds: "), Serial.println(seconds);
+
+      // else
+      // {
+      //   putStringToArray("koniec odliczania", line3);
+      // }
+      
+      // Split seconds values to two char character
+      String secondsStr;
+      String zero = "0";
+      secondsStr = seconds;
+      if (seconds < 10)
+      {
+        secondsStr = zero + seconds;
+      }
+      String minutesStr = "00";
+      String hoursStr = "00";
+      String separator = ":";
+
+      String clockTemp;
+      clockTemp = hoursStr + separator + minutesStr + separator + secondsStr;
+      putStringToArray(clockTemp, line3);
+
+
+  }
+  return countStatus;
+}
 
 // Set pin function
 int setPin(char key){
@@ -240,7 +293,7 @@ int setTime(char key, char line[]){
 
     else if (timeCursor == 3 || timeCursor == 6)
       {
-        if (key == '1' || key == '2' || key == '3' || key == '4' || key == '5')
+        if (key == '0' ||key == '1' || key == '2' || key == '3' || key == '4' || key == '5')
           {
             line3[timeCursor] = {key};
             timeCursor ++;
@@ -275,7 +328,7 @@ int setTime(char key, char line[]){
 
     if (keypressed == '#' && timeCursor == 8)
     {
-      // Put chars from lcd to variables
+      // Put chars from lcd to int variables
       hours = ( 10 * (line[0] - '0' ) ) + line[1] - '0';
       minutes = ( 10 * (line[3] - '0' ) ) + line[4] - '0';
       seconds = ( 10 * (line[6] - '0' ) ) + line[7] - '0';
@@ -292,48 +345,6 @@ int setTime(char key, char line[]){
     return timeCursor;
 }
 
-
-
-
-
-
-// LCD print 
-// (0, 15, line1);
-// (0, 30, line2);
-// (0, 45, line3);
-// (0, 60, line4);
-// void lcdPrintString(int x, int y, String a){
-//   u8g.firstPage();
-//   u8g.setFont(u8g_font_unifont);
-//   do
-//   {
-//     String val = a;
-//     u8g.setPrintPos(x, y);
-//     u8g.print(val);
-//   } while (u8g.nextPage());
-//   }
-
-  // void lcdPrintChar(int x, int y, char letter){
-  // do
-  // {
-  //   Serial.println("letter: ");
-  //   Serial.println(letter);
-  //   u8g.setPrintPos(x, y);
-  //   u8g.print(letter);
-  // } while (u8g.nextPage());
-  // }
-
-
-  // u8g.firstPage();
-
-  // do {
-  //       u8g.setFont(u8g_font_unifont);
-  //       u8g.drawStr( 0, 15, lcdLine1);
-  //       u8g.drawStr( 0, 30, lcdLine2);
-  //       u8g.drawStr( 0, 45, lcdLine3);
-  //       u8g.drawStr( 0, 60, lcdLine4);
-  //     } while( u8g.nextPage() );
-  
 
   void lcdPrintString(int x, int y, String a){
   u8g.firstPage();
@@ -362,20 +373,6 @@ int setTime(char key, char line[]){
               delay(100);
             } while (u8g.nextPage());
   }
-
-
-
-
-  //  print arr to serial works !!
-  // void lcdPrintArray(char arr[], int arrSize){
-  //   for (int i = 0; i < arrSize; i++)
-  //   {
-  //     Serial.print(arr[i]);
-  //     delay(100);
-  //   }
-  // }
-
-
 
   // Get variable from keypad and set buzzer
 char getKey(){
