@@ -158,14 +158,19 @@ void loop(void)
       putStringToArray("Wybuchnie za:", line2);
       putStringToArray("PIN: ", line4);
       counting();
-      // disarmBomb(keypressed);
     }
-    else  if (countStatus == 1)
+
+    if (countStatus == 0 && bombStatus == 2)
+    {
+      disarmBomb(keypressed);
+    }
+
+    if (countStatus == 1)
     {
       bombStatus++;
     }
 
-    else if (countStatus == 3)
+    if (countStatus == 3)
     {
       bombStatus = 0;
     }
@@ -204,7 +209,6 @@ void loop(void)
 
 // Disarm bom function
 int disarmBomb(char key){
-  // disarmStatus
     if (keypressed == '*' && pinCursor2 > 0){
     pinCursor2 --;
   }
@@ -212,33 +216,6 @@ int disarmBomb(char key){
   // pin - set confirm
   if (keypressed == '#' && pinCursor2 == 4){
     pinCursor2 = 5;
-    
-    char pin1;
-    char pin2;
-    char pin3;
-    char pin4;
-    pin1 = (int)pin[0];
-    pin2 = (int)pin[1];
-    pin3 = (int)pin[2];
-    pin4 = (int)pin[3];
-
-    int pinEnt1;
-    int pinEnt2;
-    int pinEnt3;
-    int pinEnt4;
-    pinEnt1 = (int)pinEntered[0];
-    pinEnt2 = (int)pinEntered[1];
-    pinEnt3 = (int)pinEntered[2];
-    pinEnt4 = (int)pinEntered[3];
-
-    
-    
-    if (pin1 == pinEnt1 && pin2 == pinEnt2 && pin3 == pinEnt3 && pin4 == pinEnt4)
-    {
-      disarmStatus = 4;
-    }
-
-    Serial.println(disarmStatus);
   }
 
   if (key == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
@@ -252,45 +229,29 @@ int disarmBomb(char key){
 
     if (pinCursor2 == 1)
       {
-        // putStringToArray("*-usun", line2);
         putStringToArray("PIN: *", line4);
       }
 
     if (pinCursor2 == 2)
       { 
-        // putStringToArray("*-usun", line2);
         putStringToArray("PIN: **", line4);
       }
 
     if (pinCursor2 == 3)
       {
-        // putStringToArray("*-usun", line2);
         putStringToArray("PIN: ***", line4);
       }
 
     if (pinCursor2 == 4)
       {
-        // putStringToArray("*-usun #-potw", line2);
         putStringToArray("PIN: ****", line4);
-        // if (pin[0] == pinEntered[0] && pin[1] == pinEntered[1] && pin[2] == pinEntered[2] && pin[3] == pinEntered[3])
-        // {
-        //   disarmStatus = 4;
-        //   bombStatus = 0;
-        // }
-        
       }
 
-      char tempVal2 = pinCursor2;
-      pinEntered[tempVal2 - 1] = {key};
+      char tempVal = pinCursor2;
+      pinEntered[tempVal - 1] = {key};
+      Serial.println(pinEntered[tempVal - 1]);
 
-      // if (pinEntered[tempVal2 - 1] == pin[tempVal2 - 1]);
-      // {
-      //   disarmStatus ++;
-      // }
-      // Serial.println(pinEntered[tempVal2 - 1]);
-      // Serial.println("disarmStatus: ");
-      // Serial.println(disarmStatus);
-
+      
 
     return pinCursor2;
 }
