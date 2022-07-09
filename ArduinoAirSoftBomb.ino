@@ -121,11 +121,10 @@ void loop(void)
           }
 
         if (timeCursor == 9)
-        {
-        putStringToArray("Czas ustawiony!", line2);
-        lcdPrint();
-        bombStatus++;
-        }
+          {
+            putStringToArray("Czas ustawiony!", line2);
+            bombStatus = 1;
+          }
     }
 
   // Set pin function - bombStatus = 1;
@@ -143,7 +142,7 @@ void loop(void)
     {
       putStringToArray("Pin ustawiony!", line2);
       putStringToArray("", line3);
-      bombStatus ++;
+      bombStatus = 2;
     }
   }
 
@@ -157,24 +156,23 @@ void loop(void)
       putStringToArray("Bomba uzbrojona", line1);
       putStringToArray("Wybuchnie za:", line2);
       putStringToArray("PIN: ", line4);
-      counting();
+      do
+      {
+        counting();
+        disarmBomb(keypressed);
+      } while (pinCursor2 == 5 && disarmStatus == 4);
+      
+      
+      if (pinCursor2 == 5 && disarmStatus == 4)
+      {
+        bombStatus = 0;
+      }
     }
 
-    if (countStatus == 0 && bombStatus == 2)
-    {
-      disarmBomb(keypressed);
-    }
-
-    if (countStatus == 1)
+    if (countStatus == 1 )
     {
       bombStatus++;
     }
-
-    if (countStatus == 3)
-    {
-      bombStatus = 0;
-    }
-    
   }
 
   // Bomb exploded! - bombStatus = 3;
@@ -209,13 +207,34 @@ void loop(void)
 
 // Disarm bom function
 int disarmBomb(char key){
-    if (keypressed == '*' && pinCursor2 > 0){
+    if (key == '*' && pinCursor2 > 0){
     pinCursor2 --;
   }
 
   // pin - set confirm
-  if (keypressed == '#' && pinCursor2 == 4){
+  if (key == '#' && pinCursor2 == 4){
     pinCursor2 = 5;
+
+    if (pinEntered[0] == pin[0])
+      {
+        disarmStatus++;
+      }
+
+    if (pinEntered[1] == pin[1])
+      {
+        disarmStatus++;
+      }
+
+    if (pinEntered[2] == pin[2])
+      {
+        disarmStatus++;
+      }
+
+    if (pinEntered[3] == pin[3])
+      {
+        disarmStatus++;
+      }
+
   }
 
   if (key == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
@@ -230,43 +249,46 @@ int disarmBomb(char key){
     if (pinCursor2 == 1)
       {
         putStringToArray("PIN: *", line4);
+        pinEntered[0] = {key};
+        Serial.println(pinEntered[0]);
       }
 
     if (pinCursor2 == 2)
       { 
         putStringToArray("PIN: **", line4);
+        pinEntered[1] = {key};
+        Serial.println(pinEntered[1]);
       }
 
     if (pinCursor2 == 3)
       {
         putStringToArray("PIN: ***", line4);
+        pinEntered[2] = {key};
+        Serial.println(pinEntered[2]);
       }
 
     if (pinCursor2 == 4)
       {
         putStringToArray("PIN: ****", line4);
+        pinEntered[3] = {key};
+        Serial.println(pinEntered[3]);
       }
+      Serial.println("disaramStatus:");
+      Serial.println(disarmStatus);
 
-      char tempVal = pinCursor2;
-      pinEntered[tempVal - 1] = {key};
-      Serial.println(pinEntered[tempVal - 1]);
-
-      
-
-    return pinCursor2;
+      return disarmStatus;
 }
 
 // Counting function
 int counting(){
     if (currentMillis - startMillis >= period)  
     {
-      startMillis = currentMillis;
+      startMillis = currentMillis; 
       // secondsMillis = ((startMillis/1000)%60);
       // Serial.print("secondsMillis: "), Serial.println(secondsMillis);
       if (seconds % 2)
       {
         digitalWrite (redDiode, HIGH);
-
       }
       else
       {
@@ -294,10 +316,10 @@ int counting(){
       if (seconds == 0 && minutes == 0 && hours == 0)
       {
         countStatus++; // countStatur = 1 - couting is end
-        Serial.print("countring status: "), Serial.println(countStatus);
+        // Serial.print("countring status: "), Serial.println(countStatus);
       }
 
-      Serial.print("seconds: "), Serial.println(seconds);
+      // Serial.print("seconds: "), Serial.println(seconds);
       
       // Split values to two char character && put to char aaray - line3
       String hoursStr;
@@ -324,8 +346,8 @@ int counting(){
       String clockTemp;
       clockTemp = hoursStr + separator + minutesStr + separator + secondsStr;
       putStringToArray(clockTemp, line3);
-
-  }
+      
+    }
   return countStatus;
 }
 
@@ -339,6 +361,10 @@ int setPin(char key){
   // pin - set confirm
   if (keypressed == '#' && pinCursor1 == 4){
     pinCursor1 = 5;
+    // Serial.println(pin[0]);
+    // Serial.println(pin[1]);
+    // Serial.println(pin[2]);
+    // Serial.println(pin[3]);
   }
 
   if (key == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
@@ -354,29 +380,37 @@ int setPin(char key){
       {
         putStringToArray("*-usun", line2);
         putStringToArray("*", line3);
+        pin[0] = {keypressed};
+        Serial.print(pin[0]);
       }
 
     if (pinCursor1 == 2)
       { 
         putStringToArray("*-usun", line2);
         putStringToArray("**", line3);
+        pin[1] = {keypressed};
+        Serial.print(pin[1]);
       }
 
     if (pinCursor1 == 3)
       {
         putStringToArray("*-usun", line2);
         putStringToArray("***", line3);
+        pin[2] = {keypressed};
+        Serial.print(pin[2]);
       }
 
     if (pinCursor1 == 4)
       {
         putStringToArray("*-usun #-potw", line2);
         putStringToArray("****", line3);
+        pin[3] = {keypressed};
+        Serial.print(pin[3]);
       }
 
-      char tempVal = pinCursor1;
-      pin[tempVal - 1] = {key};
-      Serial.println(pin[tempVal - 1]);
+      // char tempVal = pinCursor1;
+      // pin[tempVal - 1] = {key};
+      // Serial.println(pin[tempVal - 1]);
 
     return pinCursor1;
 }
@@ -507,7 +541,11 @@ char getKey(){
     keypressed = keypad.getKey();
     if (keypressed != NO_KEY)
       {
-        tone(A8, 4000, 300); // Buzzer with tone
+        if (bombStatus != 2)
+        {
+          tone(A8, 4000, 300); // Buzzer with tone
+        }
+        
         digitalWrite (redDiode2, HIGH);
         delay (200);
         digitalWrite (redDiode2, LOW);
