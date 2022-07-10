@@ -22,6 +22,7 @@ int seconds = 0;
 int hoursMillis = -1;
 int minutesMillis;
 short int secondsMillis;
+short int delayDefuse = 10;
 long secMillis = 0;
 long interval = 1000;
 short int pinCursor1 = 0;
@@ -32,6 +33,7 @@ char line1 [16];
 char line2 [16];
 char line3 [16];
 char line4 [16];
+
 
 U8GLIB_ST7920_128X64 u8g(13, 11, 10, U8G_PIN_NONE);
 
@@ -156,16 +158,11 @@ void loop(void)
       putStringToArray("Bomba uzbrojona", line1);
       putStringToArray("Wybuchnie za:", line2);
       putStringToArray("PIN: ", line4);
-      do
-      {
-        counting();
-        disarmBomb(keypressed);
-      } while (pinCursor2 == 5 && disarmStatus == 4);
-      
-      
+      counting();
+      disarmBomb(keypressed);
       if (pinCursor2 == 5 && disarmStatus == 4)
       {
-        bombStatus = 0;
+        bombStatus = 4;
       }
     }
 
@@ -195,7 +192,25 @@ void loop(void)
       delay(100);
       digitalWrite (greenDiode, LOW);
       digitalWrite (redDiode2, LOW);
+  }
 
+  // bomb defused
+    if (bombStatus == 4 )
+  { 
+      putStringToArray("Rozbrojono", line1);
+      putStringToArray("", line2);
+      putStringToArray("", line3);
+      putStringToArray("", line4);
+      digitalWrite (greenDiode, HIGH);
+      digitalWrite (redDiode, LOW);
+      // if (currentMillis - startMillis >= period)  
+      // {
+      // // startMillis = currentMillis; 
+      // delayDefuse --;
+      // Serial.println("delayDefuse");
+      // Serial.println(delayDefuse);
+      // }
+      // bombStatus = 0;
   }
 
 
@@ -206,75 +221,79 @@ void loop(void)
 //////////////////////////////////////////////////////////
 
 // Disarm bom function
-int disarmBomb(char key){
-    if (key == '*' && pinCursor2 > 0){
+int disarmBomb(char keypressed){
+    if (keypressed == '*' && pinCursor2 > 0){
     pinCursor2 --;
   }
 
-  // pin - set confirm
-  if (key == '#' && pinCursor2 == 4){
-    pinCursor2 = 5;
-
-    if (pinEntered[0] == pin[0])
+  if (keypressed == '#' && pinCursor2 == 4)
+  { 
+    for (int i = 0; i < 4; i++)
       {
-        disarmStatus++;
+        if (pinEntered[i] == pin[i])
+          {
+            disarmStatus++;
+          }
       }
+    
+    if (disarmStatus == 4)
+    {
+      pinCursor2 = 5;
+    }
 
-    if (pinEntered[1] == pin[1])
-      {
-        disarmStatus++;
-      }
-
-    if (pinEntered[2] == pin[2])
-      {
-        disarmStatus++;
-      }
-
-    if (pinEntered[3] == pin[3])
-      {
-        disarmStatus++;
-      }
-
+      if (disarmStatus != 4  && pinCursor2 > 0)
+    {
+      putStringToArray("ZLY PIN !", line4);
+      pinCursor2 = 0;
+    }
+  
+    Serial.println(disarmStatus);
   }
 
-  if (key == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
+
+
+  if (keypressed == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
     || keypressed == '6' || keypressed == '7' || keypressed == '8'|| keypressed == '9' || keypressed == '0')
     {
       if (pinCursor2 <= 3)
       {
         pinCursor2++;
+        Serial.println(pinCursor2);
       }
+      
     }
 
     if (pinCursor2 == 1)
       {
         putStringToArray("PIN: *", line4);
-        pinEntered[0] = {key};
+        pinEntered[0] = {keypressed};
+        Serial.println("pinEntered[0]");
         Serial.println(pinEntered[0]);
       }
 
     if (pinCursor2 == 2)
       { 
         putStringToArray("PIN: **", line4);
-        pinEntered[1] = {key};
+        pinEntered[1] = {keypressed};
+        Serial.println("pinEntered[1]");
         Serial.println(pinEntered[1]);
       }
 
     if (pinCursor2 == 3)
       {
         putStringToArray("PIN: ***", line4);
-        pinEntered[2] = {key};
+        pinEntered[2] = {keypressed};
+        Serial.println("pinEntered[2]");
         Serial.println(pinEntered[2]);
       }
 
     if (pinCursor2 == 4)
       {
         putStringToArray("PIN: ****", line4);
-        pinEntered[3] = {key};
+        pinEntered[3] = {keypressed};
+        Serial.println("pinEntered[3]");
         Serial.println(pinEntered[3]);
       }
-      Serial.println("disaramStatus:");
-      Serial.println(disarmStatus);
 
       return disarmStatus;
 }
@@ -352,22 +371,15 @@ int counting(){
 }
 
 // Set pin function
-int setPin(char key){
+int setPin(char keypressed){
 
   if (keypressed == '*' && pinCursor1 > 0){
     pinCursor1 --;
   }
 
-  // pin - set confirm
-  if (keypressed == '#' && pinCursor1 == 4){
-    pinCursor1 = 5;
-    // Serial.println(pin[0]);
-    // Serial.println(pin[1]);
-    // Serial.println(pin[2]);
-    // Serial.println(pin[3]);
-  }
 
-  if (key == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
+
+  if (keypressed == '1' || keypressed == '2' || keypressed == '3' || keypressed == '4' || keypressed == '5' 
     || keypressed == '6' || keypressed == '7' || keypressed == '8'|| keypressed == '9' || keypressed == '0')
     {
       if (pinCursor1 <= 3)
@@ -375,6 +387,14 @@ int setPin(char key){
         pinCursor1++;
       }
     }
+    // pin - set confirm
+    if (keypressed == '#' && pinCursor1 == 4)
+      {
+        delay(100);
+        Serial.println(pin[0]);
+        delay(100);
+        pinCursor1 = 5;
+      }
 
     if (pinCursor1 == 1)
       {
@@ -406,7 +426,10 @@ int setPin(char key){
         putStringToArray("****", line3);
         pin[3] = {keypressed};
         Serial.print(pin[3]);
+        Serial.println("pinCursor1");
+        Serial.println(pinCursor1);
       }
+
 
       // char tempVal = pinCursor1;
       // pin[tempVal - 1] = {key};
